@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-trilium
+  namespace: trilium
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - trilium.danielbeltejar.es
+      secretName: letsencrypt
+  rules:
+  - host: trilium.danielbeltejar.es
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: trilium-notes
+            port: 
+              number: 8082
