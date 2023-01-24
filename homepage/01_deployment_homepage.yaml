@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-homepage
+  name: nginx-homepage
+  namespace: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-homepage
+  template:
+    metadata:
+      labels:
+        app: nginx-homepage
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        volumeMounts:
+          - name: html-volume
+            mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html-volume
+        hostPath:
+          path: /opt/homepage/html
+
