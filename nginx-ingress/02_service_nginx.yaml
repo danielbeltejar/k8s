@@ -13,13 +13,13 @@ metadata:
 spec:
   ports:
   - name: port-1
-    port: 80
-    nodePort: 80
+    port: 31080
+    nodePort: 31080
     protocol: TCP
     targetPort: 80
   - name: port-2
-    port: 443
-    nodePort: 443
+    port: 31443
+    nodePort: 31443
     protocol: TCP
     targetPort: 443
   selector:

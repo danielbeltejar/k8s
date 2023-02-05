@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: trilium-notes
   namespace: trilium
   labels:
     app: trilium-notes
 spec:
-  serviceName: trilium-notes
   replicas: 1
   selector:
     matchLabels:
