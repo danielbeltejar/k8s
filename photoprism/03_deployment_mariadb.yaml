@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photoprism-db
+  namespace: photoprism
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photoprism-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: photoprism-db
+    spec:
+      containers:
+        - name: photoprism-db
+          image: mariadb:10.6
+          env:
+            - name: MYSQL_DATABASE
+              value: photoprism
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: photoprism-db-secret
+                  key: password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: photoprism-db-secret
+                  key: root_password
+            - name: MYSQL_USER
+              value: photoprism
+          args:
+            - mysqld
+            - --innodb-buffer-pool-size=128M
+            - --transaction-isolation=READ-COMMITTED
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+            - --max-connections=512
+            - --innodb-rollback-on-timeout=OFF
+            - --innodb-lock-wait-timeout=120
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: db-volume
+      restartPolicy: Always
+      volumes:
+      - name: db-volume
+        hostPath:
+          path: /opt/photoprism/db
+          type: Directory

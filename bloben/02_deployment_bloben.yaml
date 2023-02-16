@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bloben
+  namespace: bloben
+  labels:
+    app: bloben
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bloben
+  template:
+    metadata:
+      labels:
+        app: vikunja
+    spec:
+      containers:
+        - name: bloben-app
+          image: "bloben/app:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: DB_HOST
+            value: "bloben-postgres"
+          - name: DB_PORT
+            value: 5432
+          - name: DB_USERNAME
+            value: "bloben"
+          - name: DB_DATABASE
+            value: "bloben_api"
+          - name: DB_CONNECTION
+            value: "postgres"
+          - name: DB_SYNCHRONIZE
+            value: "true"
+          - name: DB_LOGGING
+            value: "false"
+          - name: DB_ENTITIES
+            value: "usr/app/api/build/data/entity/*.js"
+          - name: DB_ENTITIES_DIR
+            value: "usr/app/api/build/data/entity"
+          - name: DB_MIGRATIONS
+            value: "usr/app/api/build/data/migrations/*.js"
+          ports:
+          - name: app
+            protocol: TCP
+            containerPort: 80
+          volumeMounts:
+          - name: pv-volume
+            mountPath: "/app/vikunja/vikunja.db"
+            subPath: "vikunja.db"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+      volumes:
+        - name: pv-volume
+          hostPath:
+            path: "/opt/vikunja/data"

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-photoprism
+  namespace: photoprism
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/proxy-body-size: "512M"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - photos.danielbeltejar.es
+      secretName: letsencrypt
+  rules:
+  - host: photos.danielbeltejar.es
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: photoprism
+            port: 
+              number: 2342

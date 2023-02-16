@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photoprism-deployment
+  namespace: photoprism
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photoprism
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: photoprism
+    spec:
+      containers:
+        - name: photoprism
+          image: photoprism/photoprism:latest
+          env:
+            - name: HOME
+              value: /photoprism
+            - name: PHOTOPRISM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: photoprism-secret
+                  key: password
+            - name: PHOTOPRISM_DARKTABLE_PRESETS
+              value: "false"
+            - name: PHOTOPRISM_DATABASE_DRIVER
+              value: mysql
+            - name: PHOTOPRISM_DATABASE_NAME
+              value: photoprism
+            - name: PHOTOPRISM_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: photoprism-db-secret
+                  key: password
+            - name: PHOTOPRISM_DATABASE_SERVER
+              value: photoprism-db-service:3306
+            - name: PHOTOPRISM_DATABASE_USER
+              value: photoprism
+            - name: PHOTOPRISM_DEBUG
+              value: "false"
+            - name: PHOTOPRISM_DETECT_NSFW
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_CHOWN
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_CLASSIFICATION
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_FACES
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_SETTINGS
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_TENSORFLOW
+              value: "false"
+            - name: PHOTOPRISM_DISABLE_WEBDAV
+              value: "false"
+            - name: PHOTOPRISM_EXPERIMENTAL
+              value: "false"
+            - name: PHOTOPRISM_HTTP_COMPRESSION
+              value: gzip
+            - name: PHOTOPRISM_ORIGINALS_LIMIT
+              value: "5000"
+            - name: PHOTOPRISM_PUBLIC
+              value: "false"
+            - name: PHOTOPRISM_READONLY
+              value: "false"
+            - name: PHOTOPRISM_SITE_AUTHOR
+              value: ""
+            - name: PHOTOPRISM_SITE_CAPTION
+              value: Browse Your Life
+            - name: PHOTOPRISM_SITE_DESCRIPTION
+              value: ""
+            - name: PHOTOPRISM_SITE_TITLE
+              value: PhotoPrism
+            - name: PHOTOPRISM_SITE_URL
+              value: http://localhost:2342/
+            - name: PHOTOPRISM_UPLOAD_NSFW
+              value: "true"
+            - name: PHOTOPRISM_WORKERS
+              value: "8"
+          ports:
+            - containerPort: 2342
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 2342
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 2342
+          resources:
+            limits:
+              cpu: 8
+              memory: 16Gi
+            requests:
+              cpu: 2
+              memory: 4Gi
+          volumeMounts:
+            - mountPath: /photoprism/originals
+              name: photoprism-originals
+            - mountPath: /photoprism/storage
+              name: photoprism
+      restartPolicy: Always
+      volumes:
+        - name: photoprism-originals
+          hostPath:
+            path: /opt/photoprism/originals
+            type: Directory
+        - name: photoprism
+          hostPath:
+            path: /opt/photoprism/data
+            type: Directory
