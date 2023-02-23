@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spotify-dashboard
+  namespace: spotify-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spotify-dashboard
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: spotify-dashboard
+    spec:
+      containers:
+        - name: spotify-dashboard
+          image: lscr.io/linuxserver/your_spotify:latest
+          env:
+            - name: APP_URL
+              value: https://spotify.danielbeltejar.es
+            - name: TZ
+              value: Europe/Madrid
+            - name: MONGO_ENDPOINT
+              value: mongodb://spotify-mongo:27017/your_spotify 
+            - name: SPOTIFY_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-dashboard-secret
+                  key: public
+            - name: SPOTIFY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-dashboard-secret
+                  key: secret
+          ports:
+            - containerPort: 80
+      restartPolicy: Always

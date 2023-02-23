@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-spotify-dashboard
+  namespace: spotify-dashboard
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+      - spotify.danielbeltejar.es
+      secretName: letsencrypt
+  rules:
+  - host: spotify.danielbeltejar.es
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: spotify-dashboard
+            port: 
+              number: 80

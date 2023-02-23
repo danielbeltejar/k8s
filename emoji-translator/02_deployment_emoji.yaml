@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: emoji-translator
+  name: emoji-translator
+  namespace: emoji-translator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emoji-translator
+  template:
+    metadata:
+      labels:
+        app: emoji-translator
+    spec:
+      containers:
+      - image: localhost/emoji-translator:latest
+        name: emoji-translator
+        ports:
+        - containerPort: 8000
